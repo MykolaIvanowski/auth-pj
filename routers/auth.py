@@ -24,7 +24,7 @@ def login(data: LoginRequest):
     return {'access_token': token}
 
 
-router.post("/refresh", responce_model=Token)
+router.post("/refresh", response_model=Token)
 def refresh_token(refresh_request: RefreshSchema, db: Session = Depends(get_db)):
     stored = db.query(RefreshToken).filter_by(token=refresh_request.refresh_token).first()
     if not stored or stored.revoked or stored.expires_at < datetime.utcnow():
