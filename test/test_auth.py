@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 from main import app
 
@@ -9,3 +10,4 @@ def test_login_success():
         "username": "admin", "password": "secret"})
     assert response.status_code == 200
     assert "access_token" in response.json()
+
