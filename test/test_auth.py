@@ -1,9 +1,13 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
+from db.session import Base, get_db
 from main import app
+from models.token import RefreshToken
 from models.user import User
+
 
 client = TestClient(app)
 
@@ -61,3 +65,54 @@ def test_register_short_password():
         "password": "12"
     })
     assert response.status_code == 422
+
+
+### logout
+
+
+SQLALCHEMY_DATABASE_URL = "postgresql://test_user:test_password@localhost:5432/test_db"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Створюємо таблиці для тестів
+Base.metadata.create_all(bind=engine)
+
+
+def override_get_db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+app.dependency_overrides[get_db] = override_get_db
+
+
+@pytest.fixture
+def db_session():
+    """Фікстура для роботи з тестовою БД"""
+    session = TestingSessionLocal()
+    yield session
+    session.close()
+
+
+def test_logout_success(db_session):
+    # Створюємо refresh token у БД
+    token = RefreshToken(token="valid_token", revoked=False)
+    db_session.add(token)
+    db_session.commit()
+
+    response = client.post("/logout", json={"refreshed_token": "valid_token"})
+    assert response.status_code == 200
+    assert response.json() == {"message": "successfully logout!!!"}
+
+    # Перевіряємо, що токен позначений як revoked
+    refreshed = db_session.query(RefreshToken).filter_by(token="valid_token").first()
+    assert refreshed.revoked is True
+
+
+def test_logout_invalid_token(db_session):
+    response = client.post("/logout", json={"refreshed_token": "wrong_token"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "invalid refresh token"
