@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from core.logging import LoggingMiddleware
-from routers import auth as auth_router
-
+from app.core.logging import LoggingMiddleware
+from app.routers import auth as auth_router
 
 app = FastAPI(
     title='start auth service',

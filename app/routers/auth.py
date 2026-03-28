@@ -3,13 +3,13 @@ import secrets
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from core.security import hash_password
-from models.token import RefreshToken
-from models.user import User
-from schemas.user import LoginRequest, UserCreate
-from schemas.token import Token, RefreshSchema
-from core.security import create_access_token
-from db.session import  get_db
+from app.core.security import hash_password
+from app.models.token import RefreshToken
+from app.models.user import User
+from app.schemas.user import LoginRequest, UserCreate
+from app.schemas.token import Token, RefreshSchema
+from app.core.security import create_access_token
+from app.db.session import  get_db
 
 router = APIRouter()
 
