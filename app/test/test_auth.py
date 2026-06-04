@@ -75,7 +75,6 @@ SQLALCHEMY_DATABASE_URL = "postgresql://test_user:test_password@localhost:5432/t
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Створюємо таблиці для тестів
 Base.metadata.create_all(bind=engine)
 
 
@@ -98,7 +97,7 @@ def db_session():
 
 
 def test_logout_success(db_session):
-    # Створюємо refresh token у БД
+
     token = RefreshToken(token="valid_token", revoked=False)
     db_session.add(token)
     db_session.commit()
@@ -107,7 +106,6 @@ def test_logout_success(db_session):
     assert response.status_code == 200
     assert response.json() == {"message": "successfully logout!!!"}
 
-    # Перевіряємо, що токен позначений як revoked
     refreshed = db_session.query(RefreshToken).filter_by(token="valid_token").first()
     assert refreshed.revoked is True
 
