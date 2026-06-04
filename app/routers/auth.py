@@ -12,11 +12,13 @@ from app.core.security import create_access_token
 from app.db.session import  get_db
 
 router = APIRouter()
+router.version = 'v1'
 
-router.post("/login", response_model=Token)
+@router.post("/login", response_model=Token)
 def login(data: LoginRequest):
     ##TODO change for user check
-
+    print("8"*20)
+    print(router.version)
     if data.username != "admin" or data.password != "secret":
         raise HTTPException(status_code=401, detail='sorry you are using invalid credentials')
 
@@ -24,7 +26,7 @@ def login(data: LoginRequest):
     return {'access_token': token}
 
 
-router.post("/refresh", response_model=Token)
+@router.post("/refresh", response_model=Token)
 def refresh_token(refresh_request: RefreshSchema, db: Session = Depends(get_db)):
     stored = db.query(RefreshToken).filter_by(token=refresh_request.refresh_token).first()
     if not stored or stored.revoked or stored.expires_at < datetime.utcnow():
@@ -42,7 +44,7 @@ def refresh_token(refresh_request: RefreshSchema, db: Session = Depends(get_db))
     return {"access_token": access, "refreshed_token": new_refresh, "token_type":"bearer"}
 
 
-router.post("/register")
+@router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == user.email).first()
     if existing:
@@ -54,7 +56,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-router.post("/logout")
+@router.post("/logout")
 def logout(refresh_request:RefreshSchema, db: Session = Depends(get_db)):
     stored = db.query(RefreshToken).filter_by(token=refresh_request.refreshed_token).first()
 

@@ -9,4 +9,4 @@ class RefreshToken(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     token = Column(String, unique=True, index=True)
     expires_at = Column(DateTime)
-    revoke = Column(Boolean, deafault=False)
+    revoke = Column(Boolean, default=False)
