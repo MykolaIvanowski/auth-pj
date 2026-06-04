@@ -7,7 +7,7 @@ SECRET_KEY = 'SECRET_KEY'
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRES_MINUTES = 15
 
-pwd_context = CryptContext(schemas=["bcrypt"], depricated=["auto"])
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str):
